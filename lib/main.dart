@@ -1,14 +1,23 @@
 import 'dart:async';
 import 'dart:convert'; //it allows us to convert our json to a list
 
-import 'package:cardd/model/postModel.dart';
+import 'package:cardd/model/newsModel.dart';
+//import 'package:cardd/model/postModel.dart';
 import 'package:cardd/widgets/CustomCard.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluent_appbar/fluent_appbar.dart';
+import 'constants.dart';
 
 void main() {
-  runApp(MaterialApp(home: HomePage()));
+  runApp(
+    MaterialApp(
+      home: HomePage(),
+      theme: ThemeData(
+        primaryColor: AppColors.greenNotTransparent,
+      ),
+    ),
+  );
 }
 
 class HomePage extends StatefulWidget {
@@ -19,7 +28,7 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   String dataMessage = "";
 
-  List<PostModel> data = List<PostModel>();
+  List<News> data = List<News>();
 
   final ScrollController scrollController = ScrollController();
 
@@ -29,26 +38,18 @@ class HomePageState extends State<HomePage> {
     //we have to wait to get the data so we use 'await'
     http.Response response = await http.get(
         //Uri.encodeFull removes all the dashes or extra characters present in our Uri
-        Uri.encodeFull("https://jsonplaceholder.typicode.com/posts"),
+        Uri.encodeFull(
+            "http://newsapi.org/v2/top-headlines?country=tr&category=health&apiKey=bdabbe44247944fba614776fb0846a98"),
         headers: {
           //if your api require key then pass your key here as well e.g "key": "my-long-key"
           "Accept": "application/json"
         });
 
-    //print(response.body);
+    Map<String, dynamic> news = json.decode(response.body);
+    News n = News.fromJson(news);
 
     setState(() {
-      //data = json.decode(response.body);
-
-      data = (json.decode(response.body) as List)
-          .map((i) => PostModel.fromJson(i))
-          .toList();
-    });
-    //print(data);
-    //print(data[1]["title"]); // it will print => title: "qui est esse"
-
-    setState(() {
-      //dataMessage = data[1]["title"];
+      data.add(n);
     });
 
     return true;
@@ -60,9 +61,10 @@ class HomePageState extends State<HomePage> {
       body: Stack(children: <Widget>[
         listDemo(),
         FluentAppBar(
+          appBarColor: AppColors.green,
           scrollController: scrollController,
-          titleText: 'Home',
-          titleColor: Colors.green,
+          titleText: 'Sağlıktaki Gelişmeler',
+          titleColor: AppColors.black,
         ),
       ]),
     );
@@ -83,7 +85,7 @@ class HomePageState extends State<HomePage> {
                   24,
               bottom: 62 + MediaQuery.of(context).padding.bottom,
             ),
-            itemCount: data.length,
+            itemCount: data.first.articles.length,
             scrollDirection: Axis.vertical,
             itemBuilder: (BuildContext context, int index) {
               //widget.animationController.forward();
@@ -91,7 +93,7 @@ class HomePageState extends State<HomePage> {
                 //height: 80,
                 //color: Colors.amber[colorCodes[index]],
                 child: Center(
-                  child: CustomCard(data: data[index]),
+                  child: CustomCard(data: data.first.articles.elementAt(index)),
                 ),
               );
             },

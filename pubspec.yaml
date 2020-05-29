@@ -16,11 +16,17 @@ dependencies:
   fluent_appbar: 1.0.0
 
   cupertino_icons: ^0.1.3
+  webview_flutter: ^0.3.22+1
+  url_launcher: ^4.0.2
+  share: ^0.6.4+3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
 flutter:
+  assets:
+    - assets/images/
 
   uses-material-design: true
 
